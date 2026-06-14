@@ -13,7 +13,7 @@
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
-    "eas-build-pre-build": "npm run build && npx cap sync"
+    "eas-build-pre-build": "npm run build && npx cap sync && sed -i 's/VERSION_21/VERSION_17/g' android/capacitor-cordova-android-plugins/build.gradle"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.0",
