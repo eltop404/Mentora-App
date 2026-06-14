@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "android": {
+      "package": "com.mentora.app"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f0b10b39-fe41-43ec-a4ca-6dfd7276e6c9"
+      }
+    }
+  }
+}
