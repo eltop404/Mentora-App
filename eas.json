@@ -14,7 +14,7 @@
     "production": {
       "autoIncrement": true,
       "android": {
-        "gradleCommand": "assembleRelease",
+        "image": "latest",
         "env": {
           "EAS_BUILD_GRADLE_JAVA_VERSION": "21"
         }
