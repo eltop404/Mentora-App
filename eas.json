@@ -12,7 +12,11 @@
       "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "image": "latest",
+      "android": {
+        "gradleCommand": "assembleRelease"
+      }
     }
   },
   "submit": {
