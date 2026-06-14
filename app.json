@@ -1,5 +1,7 @@
 {
   "expo": {
+    "name": "mentora-android-app",
+    "slug": "mentora-android-app",
     "android": {
       "package": "com.mentora.app"
     },
