@@ -9,20 +9,10 @@
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal",
-      "android": {
-        "env": {
-          "EAS_BUILD_GRADLE_JAVA_VERSION": "21"
-        }
-      }
+      "distribution": "internal"
     },
     "production": {
-      "autoIncrement": true,
-      "android": {
-        "env": {
-          "EAS_BUILD_GRADLE_JAVA_VERSION": "21"
-        }
-      }
+      "autoIncrement": true
     }
   },
   "submit": {
