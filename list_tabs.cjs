@@ -1,0 +1,10 @@
+const fs = require('fs');
+const content = fs.readFileSync('src/App.tsx', 'utf8');
+const navStart = content.indexOf("id: 'booklets'");
+const navEnd = content.indexOf('.filter(item =>', navStart);
+const navSection = content.substring(navStart, navEnd);
+const idRegex = /id: '([^']+)'/g;
+let m; const ids = [];
+while((m = idRegex.exec(navSection)) !== null) ids.push(m[1]);
+console.log('NAV TABS:', ids.join(', '));
+console.log('Total tabs:', ids.length);

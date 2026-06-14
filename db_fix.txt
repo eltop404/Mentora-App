@@ -1,0 +1,99 @@
+            examAttempts[examId] = currentAttempts;
+            examLastAttemptTime[examId] = Date.now();
+
+            // Set unlock time after finishing the 4th attempt (Original + 3 Retakes)
+            if (currentAttempts >= 4) {
+                const minM = 22;
+                const maxM = 49;
+                const randM = Math.random() * (maxM - minM) + minM;
+                examUnlockTimes[examId] = Date.now() + (randM * 60 * 1000);
+            }
+
+            DB.updateStudent(studentId, {
+                examAttempts,
+                examLastAttemptTime,
+                examUnlockTimes
+            });
+        }
+    },
+
+    getExamAttempts: (studentId: string, examId: string): number => {
+        const students = DB.getStudents();
+        const student = students.find(s => s.id === studentId);
+        return student?.examAttempts?.[examId] || 0;
+    },
+
+    getExamLastAttemptTime: (studentId: string, examId: string): number => {
+        const students = DB.getStudents();
+        const student = students.find(s => s.id === studentId);
+        return student?.examLastAttemptTime?.[examId] || 0;
+    },
+
+    getExamUnlockTime: (studentId: string, examId: string): number => {
+        const students = DB.getStudents();
+        const student = students.find(s => s.id === studentId);
+        return student?.examUnlockTimes?.[examId] || 0;
+    },
+
+    consumeSurveyQuota: (studentId: string): { allowed: boolean; remaining: number; resetTime?: number } => {
+        const students = DB.getStudents();
+        const index = students.findIndex(s => s.id === studentId);
+        if (index === -1) return { allowed: false, remaining: 0 };
+        const student = students[index];
+
+        const now = Date.now();
+        // Independent 3 messages for Share Your Opinion
+        let currentQuota = student.surveyQuota ?? 3;
+        let currentResetTime = student.surveyResetTime;
+
+        if (student.isChatFree) return { allowed: true, remaining: 999 };
+
+        // Reset check
+        if (currentQuota <= 0 && currentResetTime) {
+            if (now >= currentResetTime) {
+                currentQuota = 3;
+                currentResetTime = undefined;
+            }
+        }
+
+        if (currentQuota > 0) {
+            const nextQuota = currentQuota - 1;
+            let nextResetTime = currentResetTime;
+            if (nextQuota === 0) {
+                // RANDOM TIMER: 3 hours to 6.5 hours
+                const minH = 3;
+                const maxH = 6.5;
+                const randH = Math.random() * (maxH - minH) + minH;
+                nextResetTime = now + (randH * 60 * 60 * 1000);
+            }
+            DB.updateStudent(studentId, { surveyQuota: nextQuota, surveyResetTime: nextResetTime });
+            return { allowed: true, remaining: nextQuota, resetTime: nextResetTime };
+        }
+
+        return { allowed: false, remaining: 0, resetTime: currentResetTime };
+    },
+
+    deleteStudent: (id: string) => {
+        // 1. Add to Global Tombstone List (The Blacklist) - Use immediate sync for critical removal
+        const deletedIds = safeParse<string[]>(Storage.getItem(KEYS.DELETED_STUDENTS), []);
+        if (!deletedIds.includes(id)) {
+            deletedIds.push(id);
+            Storage.setItem(KEYS.DELETED_STUDENTS, JSON.stringify(deletedIds));
+            DB._syncToServer(KEYS.DELETED_STUDENTS, deletedIds, true);
+        }
+
+        // 2. Perform Physical Purge from Current Array
+        const items = safeParse<Student[]>(Storage.getItem(KEYS.STUDENTS), []);
+
+        const deletedStudent = items.find(s => s.id === id);
+        const name = deletedStudent?.username || 'Student';
+
+        // Mark as deleted before saving to assist with merge tombstoning on other clients
+        const markedItems = items.map(s => s.id === id ? { ...s, isDeleted: true } : s);
+        const filtered = markedItems.filter(s => s.id !== id);
+
+        DB.saveStudents(filtered);
+
+        // 3. Deep clean chats/presence to remove their undead presence everywhere else
+        DB.purgeStudentData(id, name);
+    },

@@ -1,0 +1,30 @@
+                                                      localStorage.setItem('nt_current_user', JSON.stringify(updatedUser));
+                                                    } else {
+                                                      alert(`هذا الشرح يحتاج إلى ${requiredCoins} كوينز. رصيدك الحالي (${user.coins || 0}) كوينز فقط. استمر في حل الأسئلة لتجميع النقاط!`);
+                                                    }
+                                                  }}
+                                                  className="w-full py-3 bg-gradient-to-r from-amber-500/20 to-yellow-500/10 hover:from-amber-500/30 hover:to-yellow-500/20 border border-yellow-500/30 rounded-2xl font-black text-[11px] flex flex-col items-center justify-center gap-1 transition-all active:scale-95 shadow-[0_0_15px_rgba(234,179,8,0.15)]"
+                                                >
+                                                  <div className="flex items-center justify-center gap-2 text-yellow-400">
+                                                    <Coins size={16} className="animate-pulse" />
+                                                    <span>فتح الدرس بالكوينز المكتسبة</span>
+                                                  </div>
+                                                  <span className="text-[10px] text-yellow-500/80">مطلوب: {lesson.requiredCoins} كوينز</span>
+                                                </button>
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
+
+                                        {isPending && (
+                                          <div className="w-full py-4 bg-amber-500/10 border border-amber-500/20 text-amber-500 rounded-2xl font-black text-sm text-center flex items-center justify-center gap-2 animate-pulse">
+                                            <Clock size={16} />
+                                            قيد المراجعة...
+                                          </div>
+                                        )}
+
+                                        {isApproved && (
+                                          <div className="w-full py-4 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl font-black text-sm text-center">
+                                            متاح للمشاهدة ✅
+                                          </div>
+                                        )}

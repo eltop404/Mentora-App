@@ -1,0 +1,35 @@
+16: MessageSquare, Bell, ShoppingCart, MessageCircle, Trophy, CheckCircle2, Video, Database, RefreshCw, Download, XCircle, Bot, Share2, Trash, Trash2, ExternalLink, Maximize, Minimize, AlertTriangle, Settings, Fingerprint, Key, Smartphone, Zap, Monitor, Layout, Code, Camera, Plus, ShoppingBag, Coins
+558: if (isCurrentlyLockedOut || !sessionStorage.getItem(`nt_unlocked_${user.id}`)) {
+595: sessionStorage.setItem(`nt_unlocked_${user.id}`, 'true');
+659: sessionStorage.setItem(`nt_unlocked_${user.id}`, 'true');
+660: logSecurityEvent('biometric_unlock_success', 'info', { student: user.username });
+2801: let earnedCoins = 0;
+2805: if (q?.type === 'essay') earnedCoins += 30;
+2806: else earnedCoins += 20;
+2810: setExamState(prev => ({ ...prev, status: 'finished', coinsEarned: earnedCoins }));
+2817: coins: (prevUser.coins || 0) + earnedCoins,
+3684: <Coins size={18} className="text-yellow-400 animate-pulse" />
+3809: <Coins size={48} className="text-yellow-400" />
+3823: <span className="block text-2xl font-black text-white mb-1">20 <Coins size={14} className="inline text-yellow-500 mb-1" /></span>
+3827: <span className="block text-2xl font-black text-white mb-1">30 <Coins size={14} className="inline text-yellow-500 mb-1" /></span>
+4648: const isPersistentlyApproved = user?.purchasedCourses?.includes(course.id) || user?.unlockedCoursesWithCoins?.includes(course.id);
+4870: {course.requiredCoins && course.requiredCoins > 0 && (
+4874: const requiredCoins = course.requiredCoins || 0;
+4875: if ((user.coins || 0) >= requiredCoins) {
+4878: coins: user.coins - requiredCoins,
+4879: unlockedCoursesWithCoins: [...(user.unlockedCoursesWithCoins || []), course.id]
+4885: alert(`هذا الكورس يحتاج إلى ${requiredCoins} كوينز. رصيدك الحالي (${user.coins || 0}) كوينز فقط. استمر في حل الأسئلة لتجميع النقاط!`);
+4891: <Coins size={16} className="animate-pulse" />
+4894: <span className="text-[10px] text-yellow-500/80">مطلوب: {course.requiredCoins} كوينز</span>
+5005: const isPersistentlyApproved = user?.purchasedLessons?.includes(lesson.id) || user?.unlockedLessonsWithCoins?.includes(lesson.id);
+5237: {lesson.requiredCoins && (lesson.requiredCoins > 0) && (
+5241: const requiredCoins = lesson.requiredCoins || 0;
+5242: if ((user.coins || 0) >= requiredCoins) {
+5245: coins: user.coins - requiredCoins,
+5246: unlockedLessonsWithCoins: [...(user.unlockedLessonsWithCoins || []), lesson.id]
+5252: alert(`هذا الشرح يحتاج إلى ${requiredCoins} كوينز. رصيدك الحالي (${user.coins || 0}) كوينز فقط. استمر في حل الأسئلة لتجميع النقاط!`);
+5258: <Coins size={16} className="animate-pulse" />
+5261: <span className="text-[10px] text-yellow-500/80">مطلوب: {lesson.requiredCoins} كوينز</span>
+5503: text: "إن هدفنا الوحيد من جمع المعلومات هو تحليل الأداء الدراسي وتقديم تقارير دقيقة تساعدك على التحسن. يتم تخزين درجاتك وعملاتك (Coins) في قاعدة بيانات سحابية مشفرة، ولا يتم مشاركتها أبداً مع جهات تسويقية أو أطراف خارجية."
+6090: {/* Earned Coins Display */}
+6101: <Coins size={28} className="text-yellow-400 animate-bounce" />

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://naabdellttarrekhh.netlify.app/gallery.html</loc>
+    
+    <image:image>
+      <image:loc>https://i.postimg.cc/Mpchj6Y7/IMG-20260303-WA0102.jpg</image:loc>
+      <image:title>مستر محمد يوسف | مدرس تاريخ</image:title>
+      <image:caption>مستر محمد يوسف مؤسس منصة نبض التاريخ التعليمية</image:caption>
+    </image:image>
+    
+    <image:image>
+      <image:loc>https://i.postimg.cc/ZnKQY4Rm/IMG-20260303-WA0108.jpg</image:loc>
+      <image:title>أستاذ محمد يوسف - التاريخ</image:title>
+      <image:caption>شرح مبسط لمادة التاريخ للمرحلة الإعدادية والثانوية مع مستر محمد يوسف</image:caption>
+    </image:image>
+    
+    <image:image>
+      <image:loc>https://i.postimg.cc/HsnNfYRw/IMG-20260303-WA0104.jpg</image:loc>
+      <image:title>نبض التاريخ</image:title>
+      <image:caption>منصة نبض التاريخ لتعليم مادة التاريخ بقيادة مستر محمد يوسف</image:caption>
+    </image:image>
+    
+    <image:image>
+      <image:loc>https://i.postimg.cc/sX36Ks56/IMG-20260303-WA0101.jpg</image:loc>
+      <image:title>إدارة المنصة</image:title>
+      <image:caption>مستر محمد يوسف أثناء إشرافه على محتوى منصة نبض التاريخ</image:caption>
+    </image:image>
+    
+    <image:image>
+      <image:loc>https://i.postimg.cc/g29KNGWr/file-00000000acb0720a85e431d06d86ac60.png</image:loc>
+      <image:title>شعار المنصة</image:title>
+      <image:caption>اللوغو الرسمي لمنصة نبض التاريخ - مستر محمد يوسف</image:caption>
+    </image:image>
+
+  </url>
+</urlset>

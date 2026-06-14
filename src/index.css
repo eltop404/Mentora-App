@@ -1,0 +1,1235 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Cairo", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Custom Config for Dynamic Theme */
+  --color-primary: var(--primary);
+
+  /* Prevent oklch by defining standard hex colors for all used shades */
+  --color-blue-50: #eff6ff;
+  --color-blue-100: #dbeafe;
+  --color-blue-200: #bfdbfe;
+  --color-blue-300: #93c5fd;
+  --color-blue-400: #60a5fa;
+  --color-blue-500: #3b82f6;
+  --color-blue-600: #2563eb;
+  --color-blue-700: #1d4ed8;
+  --color-blue-800: #1e40af;
+  --color-blue-900: #1e3a8a;
+  --color-blue-950: #172554;
+
+  --color-emerald-50: #ecfdf5;
+  --color-emerald-100: #d1fae5;
+  --color-emerald-500: #10b981;
+  --color-emerald-600: #059669;
+  --color-emerald-700: #047857;
+
+  --color-cyan-400: #22d3ee;
+  --color-cyan-500: #06b6d4;
+
+  --color-orange-100: #ffedd5;
+  --color-orange-500: #f97316;
+  --color-orange-600: #ea580c;
+  --color-orange-700: #c2410c;
+
+  --color-red-100: #fee2e2;
+  --color-red-500: #ef4444;
+  --color-red-600: #dc2626;
+  --color-red-700: #b91c1c;
+
+  --color-amber-400: #fbbf24;
+  --color-amber-500: #f59e0b;
+
+  --color-slate-900: #0f172a;
+
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+}
+
+:root {
+  --primary: #00f2ff;
+  --accent: #ffd700;
+  --bg-dark: #000205;
+  --glass-bg: rgba(255, 255, 255, 0.02);
+  --glass-border: rgba(255, 255, 255, 0.05);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  background-color: #000000;
+  color: white;
+  overflow-x: hidden;
+  overflow-y: auto;
+  width: 100vw;
+  max-width: 100%;
+  direction: rtl;
+  scrollbar-gutter: auto;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Prevent layout thrashing from font loading */
+  font-display: swap;
+}
+
+.layout-container,
+.main-container {
+  min-height: 100dvh;
+}
+
+@supports (-webkit-touch-callout: none) {
+
+  .layout-container,
+  .main-container {
+    min-height: -webkit-fill-available;
+  }
+}
+
+.layout-bottom-nav,
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  height: 70px;
+  z-index: 9999;
+}
+
+.layout-main-content,
+main {
+  padding-bottom: 80px;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+@media (max-width: 768px) {
+
+  .layout-container,
+  .main-container {
+    min-height: 100dvh;
+  }
+
+  .layout-bottom-nav,
+  .bottom-nav {
+    height: 65px;
+  }
+
+  .layout-main-content,
+  main {
+    padding-bottom: 75px;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ⚡ INSTANT INTERACTION — Critical for perceived performance */
+button,
+[role="button"],
+a,
+input,
+select,
+textarea,
+label {
+  /* Remove 300ms tap delay on mobile */
+  touch-action: manipulation;
+  /* Instant visual feedback */
+  -webkit-tap-highlight-color: transparent;
+  /* GPU-accelerate interactive elements */
+  will-change: auto;
+}
+
+/* Instant active state feedback */
+button:active,
+[role="button"]:active {
+  transform: scale(0.97);
+  transition: transform 80ms ease;
+}
+
+/* Input fields — no GPU layer needed, just fast focus */
+input,
+textarea,
+select {
+  /* Prevent system zoom on iOS (must be >= 16px) */
+  font-size: max(16px, 1em);
+  /* Instant response, no transitions on value */
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+/* Redesigned Header Styles */
+.marquee-bar {
+  display: flex !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  background: rgba(0, 0, 0, 0.45) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  padding: 4px 0 !important;
+  z-index: 50;
+  position: relative;
+}
+
+.marquee-content {
+  display: inline-block !important;
+  white-space: nowrap !important;
+  padding-right: 100% !important;
+  animation: marquee-text-left 25s linear infinite !important;
+  font-weight: 800 !important;
+  font-size: 10px !important;
+  color: #fbbf24 !important;
+  will-change: transform;
+}
+
+@keyframes marquee-text-left {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.nav-scroll-x::-webkit-scrollbar {
+  display: none !important;
+}
+
+.nav-scroll-x {
+  scroll-behavior: smooth;
+
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+/* Zero Frame-Drop Scroll Engine */
+/* NOTE: Only apply pan-y to scroll containers, NOT all elements
+   (applying to all elements blocks click events on iOS) */
+.layout-main-content,
+.overflow-y-auto,
+[data-scroll="y"] {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: contain;
+}
+
+/* Allow horizontal scroll in nav bar */
+.nav-scroll-x {
+  scroll-behavior: smooth;
+  touch-action: pan-x !important;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* GPU Performance Utilities — Use sparingly, only on animated elements */
+.transform-gpu {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  /* Note: will-change is intentionally limited — too many layers = memory pressure */
+}
+
+.will-change-scroll {
+  will-change: scroll-position, transform;
+}
+
+/* Content Visibility Optimization */
+.content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 1000px;
+}
+
+/* Glass Architecture - Performance Optimized */
+.glass {
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border: 1px solid var(--glass-border);
+  transform: translateZ(0);
+}
+
+.glass-glow {
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  /* Slightly lighter shadow */
+  transform: translateZ(0);
+}
+
+
+
+@media (max-width: 768px) {
+  .glass {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-glow {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.animate-float,
+.animate-rotate-globe,
+.animate-float-soft {
+  animation: none !important;
+  /* Static on mobile to save CPU */
+}
+
+.transform-gpu {
+  transform: none !important;
+  /* Sometimes translate3d causes lag on very old browsers */
+}
+
+.glow-text {
+  text-shadow: 0 0 15px var(--primary), 0 0 30px var(--primary);
+}
+
+.glow-button {
+  box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+  transition: all 0.3s ease;
+  transform: translateZ(0);
+}
+
+.glow-button:hover {
+  box-shadow: 0 0 35px rgba(0, 242, 255, 0.4);
+  transform: translateY(-2px) translateZ(0);
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg) translateZ(0);
+  }
+
+  50% {
+    transform: translateY(-20px) rotate(5deg) translateZ(0);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes rotate-globe {
+  from {
+    transform: rotateY(0deg) translateZ(0);
+  }
+
+  to {
+    transform: rotateY(360deg) translateZ(0);
+  }
+}
+
+.animate-rotate-globe {
+  animation: rotate-globe 20s linear infinite;
+  will-change: transform;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Utilities to hide scrollbar but keep functionality */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.no-scrollbar-page::-webkit-scrollbar {
+  display: none !important;
+}
+
+.no-scrollbar-page {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+/* 🚀 Performance Optimization Engine */
+.cv-section {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 500px;
+  contain: content;
+}
+
+/* Avoid Layout Thrashing */
+img {
+  content-visibility: auto;
+}
+
+* {
+  outline: none;
+}
+
+@keyframes float-soft {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+.animate-float-soft {
+  animation: float-soft 4s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* 🛑 Disable Heavy Decorative Animations for Maximum Performance */
+.animate-float,
+.animate-float-soft,
+.animate-rotate-globe,
+[class*="animate-spin-slow"] {
+  animation: none !important;
+}
+
+@keyframes nt-marquee {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100vw);
+  }
+}
+
+.nt-marquee {
+  animation: nt-marquee 40s linear infinite !important;
+}
+
+/* 📱 Robust Mobile Layout Engine — Dynamic Viewport */
+.layout-container {
+  position: relative;
+  width: 100%;
+  /* Use dynamic viewport height so the container adapts when
+     the browser address bar appears / disappears on mobile */
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+  isolation: isolate;
+}
+
+/* 🖼️ Fake 3D Parallax Background Layer */
+.layout-container::before {
+  content: '';
+  position: absolute;
+  inset: -5%;
+  /* High-Quality Real Image Mix: Commerce, Accounting, Tech & Programming */
+  background: 
+    linear-gradient(to bottom, rgba(2, 6, 23, 0.2), rgba(2, 6, 23, 0.8)),
+    url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop');
+  background-size: cover;
+  background-color: #020617;
+  background-position: center;
+  background-attachment: scroll;
+  /* Scroll is better for transforms than fixed */
+  clear: both;
+  z-index: -3;
+  /* deeply placed behind all elements */
+  pointer-events: none;
+  /* Static background - no animation to avoid 60fps composite layer drain */
+  transform: translate3d(0, 0, 0) scale(1.15);
+  /* Remove expensive animation - use CSS-only static position */
+}
+
+/* Removed: dynamic-bg-drift animation (was consuming GPU composite layer
+   at 60fps for a barely-visible parallax effect - not worth the perf cost) */
+@keyframes dynamic-bg-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.15); }
+}
+
+.static-bg::before {
+  animation: none !important;
+  transform: translate3d(0, 0, 0) scale(1.15) !important;
+}
+
+/* --- Cinematic Premium Dark Mode System --- */
+.dark-mode .layout-container::before {
+  background: 
+    linear-gradient(to bottom, rgba(2, 6, 23, 0.4), rgba(2, 6, 23, 0.95)),
+    url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2070&auto=format&fit=crop') !important;
+  background-size: cover !important;
+  background-position: center !important;
+}
+
+
+
+/* 🏔️ Pyramid Enhancements in Dark Mode */
+.dark-mode .pharaoh-mist {
+  background: radial-gradient(circle at 50% 45%, rgba(250, 204, 21, 0.15) 0%, rgba(56, 189, 248, 0.05) 30%, rgba(2, 6, 23, 0.6) 100%) !important;
+  animation: pyramid-breathing 10s ease-in-out infinite;
+  mix-blend-mode: color-dodge;
+  opacity: 0.8 !important;
+}
+
+@keyframes pyramid-breathing {
+
+  0%,
+  100% {
+    opacity: 0.6;
+    filter: brightness(1.2) contrast(1.1) blur(20px);
+  }
+
+  50% {
+    opacity: 0.9;
+    filter: brightness(1.5) contrast(1.2) blur(35px);
+  }
+}
+
+/* 🔦 Cinematic Light Beam */
+.pharaoh-light-beam {
+  position: absolute;
+  top: -30%;
+  left: 50%;
+  width: 450px;
+  height: 160%;
+  background: radial-gradient(ellipse at center, rgba(250, 204, 21, 0.18), transparent 70%);
+  transform: translateX(-50%) skewX(-15deg);
+  filter: blur(100px);
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+.dark-mode .pharaoh-light-beam {
+  opacity: 1;
+  animation: beam-shimmer 20s linear infinite;
+}
+
+@keyframes beam-shimmer {
+  0% {
+    transform: translateX(-50%) skewX(-15deg);
+  }
+
+  50% {
+    transform: translateX(-50%) skewX(-25deg);
+  }
+
+  100% {
+    transform: translateX(-50%) skewX(-15deg);
+  }
+}
+
+/* 🌌 Glow Orbs & Streaks */
+.pharaoh-ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+.dark-mode .pharaoh-ambient {
+  opacity: 1;
+}
+
+.glow-orb {
+  position: absolute;
+  border-radius: 50%;
+  /* Reduced blur radius for better performance */
+  filter: blur(40px);
+  /* Only animate on reduced-motion: no preference */
+  animation: orb-float var(--d, 8s) ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-orb { animation: none !important; }
+  .rope { animation: none !important; }
+  .spark { animation: none !important; }
+  .pharaoh-light-beam { animation: none !important; }
+}
+
+@keyframes orb-float {
+
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.2;
+  }
+
+  50% {
+    transform: translate(var(--x), var(--y)) scale(1.2);
+    opacity: 0.4;
+  }
+}
+
+/* 🌫️ Fog Layer */
+.pharaoh-fog {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(to top, rgba(2, 6, 23, 0.8), transparent);
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+
+.dark-mode .pharaoh-fog {
+  opacity: 0.6;
+}
+
+/* 🧶 Interactive Pharaoh Ropes & Sparks */
+.pharaoh-ropes {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+  opacity: 0.05;
+  transition: opacity 0.5s ease;
+}
+
+.dark-mode .pharaoh-ropes {
+  opacity: 0.3;
+}
+
+.rope {
+  position: absolute;
+  background: linear-gradient(to bottom, transparent, rgba(56, 189, 248, 0.4), transparent);
+  width: 1px;
+  height: 100%;
+  left: calc(var(--i) * 20%);
+  animation: rope-swing 12s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -2s);
+  filter: blur(1px);
+}
+
+@keyframes rope-swing {
+
+  0%,
+  100% {
+    transform: skewX(1deg) rotate(0.5deg);
+    opacity: 0.3;
+  }
+
+  50% {
+    transform: skewX(-1deg) rotate(-0.5deg);
+    opacity: 0.8;
+  }
+}
+
+.pharaoh-sparks {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  overflow: hidden;
+}
+
+/* 🌌 Starfield for Dark Mode */
+.pharaoh-stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 1s ease;
+  background: radial-gradient(1px 1px at 20px 30px, #eee, rgba(0, 0, 0, 0)),
+    radial-gradient(1px 1px at 40px 70px, #fff, rgba(0, 0, 0, 0)),
+    radial-gradient(1.5px 1.5px at 50px 160px, #ddd, rgba(0, 0, 0, 0)),
+    radial-gradient(1px 1px at 80px 120px, #fff, rgba(0, 0, 0, 0)),
+    radial-gradient(1px 1px at 110px 10px, #fff, rgba(0, 0, 0, 0)),
+    radial-gradient(1.5px 1.5px at 150px 90px, #fff, rgba(0, 0, 0, 0)),
+    radial-gradient(1px 1px at 190px 150px, #fff, rgba(0, 0, 0, 0));
+  background-size: 200px 200px;
+}
+
+.dark-mode .pharaoh-stars {
+  opacity: 0.3;
+  animation: star-sparkle 4s linear infinite;
+}
+
+@keyframes star-sparkle {
+
+  0%,
+  100% {
+    opacity: 0.2;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+}
+
+/* ⚡ Ambient Lighting Flash */
+.pharaoh-flash {
+  position: absolute;
+  inset: 0;
+  background: white;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.dark-mode .pharaoh-flash {
+  animation: ambient-flash 15s ease-in-out infinite;
+}
+
+@keyframes ambient-flash {
+
+  0%,
+  94%,
+  96%,
+  100% {
+    opacity: 0;
+  }
+
+  95% {
+    opacity: 0.03;
+  }
+
+  95.5% {
+    opacity: 0.01;
+  }
+}
+
+/* 🔦 Cursor Reactive Glow */
+.pharaoh-cursor-glow {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(250, 204, 21, 0.1), transparent 70%);
+  pointer-events: none;
+  z-index: 2;
+  border-radius: 50%;
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  transform: translate(-50%, -50%);
+}
+
+.dark-mode .pharaoh-cursor-glow {
+  opacity: 1;
+}
+
+/* Tech Edge Glow */
+.dark-mode .layout-container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 45%, rgba(56, 189, 248, 0.04) 50%, transparent 55%);
+  background-size: 200% 200%;
+  animation: edge-shine 8s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes edge-shine {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+.dark-mode .spark {
+  box-shadow: 0 0 15px rgba(250, 204, 21, 0.4);
+  width: 4px;
+  height: 4px;
+  background: #facc15 !important;
+}
+
+.spark {
+  position: absolute;
+  background: var(--primary);
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  filter: blur(1px);
+  box-shadow: 0 0 10px var(--primary);
+  animation: spark-float var(--duration) linear infinite;
+  opacity: 0;
+}
+
+@keyframes spark-float {
+  0% {
+    transform: translateY(100vh) translateX(0) scale(0);
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 0.8;
+  }
+
+  90% {
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: translateY(-10vh) translateX(var(--drift)) scale(1.5);
+    opacity: 0;
+  }
+}
+
+.layout-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1100;
+  background: linear-gradient(135deg, rgba(10, 10, 15, 0.7) 0%, rgba(5, 5, 10, 0.4) 100%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: env(safe-area-inset-top);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  /* Optimized: only transition properties that are actually animated */
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.dark-mode .layout-header {
+  background: rgba(15, 23, 42, 0.95);
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+/* ─── Bottom Navigation Bar ─── */
+.layout-bottom-nav {
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  /* Total height = content row (60px) + safe-area padding */
+  min-height: calc(60px + env(safe-area-inset-bottom));
+  height: auto;
+  z-index: 9999 !important;
+  padding-bottom: env(safe-area-inset-bottom) !important;
+  margin-bottom: 0 !important;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.01) 100%);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  /* overflow must NOT be hidden — it would cancel the horizontal scroll */
+  overflow: visible !important;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.dark-mode .layout-bottom-nav {
+  background: rgba(15, 23, 42, 0.95);
+  border-top-color: rgba(255, 255, 255, 0.05);
+}
+
+/* ─── Inner scroll strip ─── */
+.nav-scroll-x {
+  scroll-behavior: smooth;
+
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap;
+  align-items: center;
+  /* The right-side peek: show ~half of the next item to signal scrollability.
+     padding-right leaves extra space so the 'الشحن' neighbour item peeks. */
+  padding-right: 32px;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE / Edge */
+  overscroll-behavior-x: contain;
+  touch-action: pan-x !important;
+  /* override the global pan-y */
+}
+
+/* Peek gradient mask on the leading edge (right in RTL) to make the
+   cut-off next item obvious to the user. Using a CSS mask so the nav
+   background glassmorphism is preserved. */
+.nav-scroll-x::after {
+  content: '';
+  position: sticky;
+  flex-shrink: 0;
+  right: 0;
+  top: 0;
+  width: 40px;
+  height: 100%;
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.45), transparent);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.nav-scroll-x::-webkit-scrollbar {
+  display: none;
+  /* Chrome / Safari */
+}
+
+/* Every direct child must not shrink — required for scroll to work */
+.nav-scroll-x>* {
+  flex-shrink: 0 !important;
+}
+
+.layout-main-content {
+  position: absolute;
+  top: 75px;
+  /* header height */
+  bottom: calc(75px + env(safe-area-inset-bottom));
+  /* nav + safe area so content is never hidden behind browser bars */
+  left: 0;
+  right: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  /* Extra bottom buffer: ensures the last card is fully visible
+     above the bottom nav bar even when the browser chrome is visible */
+  padding: 0 0 120px 0;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  z-index: 5;
+}
+
+/* Modifier classes for dynamic layout */
+.layout-main-content.no-header {
+  top: 0;
+}
+
+.layout-main-content.no-bottom-nav {
+  bottom: 0;
+}
+
+.floating-chatbot-fixed {
+  position: fixed;
+  bottom: 90px;
+  /* Above bottom nav */
+  right: 15px;
+  z-index: 1200;
+}
+
+/* Dark Mode Specific Component Tweaks */
+.dark-mode .glass {
+  background: rgba(15, 23, 42, 0.8) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4) !important;
+}
+
+.dark-mode .glass:hover {
+  background: rgba(30, 41, 59, 0.9) !important;
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 25px rgba(0, 242, 255, 0.15) !important;
+  transform: translateY(-5px) scale(1.01);
+}
+
+.dark-mode .text-gray-400 {
+  color: #94a3b8;
+}
+
+.dark-mode .bg-white\/5 {
+  background-color: rgba(15, 23, 42, 0.6);
+}
+
+/* 🌅 Subtle Sunlight Glow */
+.sunlight-glow {
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 70vw;
+  height: 70vw;
+  background: radial-gradient(circle, rgba(255, 230, 150, 0.08) 0%, rgba(255, 200, 100, 0.02) 40%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: -2;
+  mix-blend-mode: screen;
+  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
+  animation: sun-pulse 8s ease-in-out infinite alternate, sun-drift 30s ease-in-out infinite alternate;
+}
+
+@keyframes sun-drift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(2%, 2%, 0);
+  }
+}
+
+.dark-mode .sunlight-glow {
+  background: radial-gradient(circle, rgba(250, 204, 21, 0.06) 0%, rgba(56, 189, 248, 0.01) 40%, transparent 70%);
+}
+
+@keyframes sun-pulse {
+  from {
+    opacity: 0.6;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* 🏜️ Subtle Fake 3D Dust Particles */
+.desert-dust-wrapper {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  will-change: transform;
+  animation: wrapper-drift 40s ease-in-out infinite alternate;
+}
+
+@keyframes wrapper-drift {
+  0% {
+    transform: translate3d(1%, 0, 0);
+  }
+
+  100% {
+    transform: translate3d(-1%, 0, 0);
+  }
+}
+
+.desert-dust {
+  position: absolute;
+  top: 100vh;
+  left: 0;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: transparent;
+  box-shadow:
+    10vw -20vh 1px rgba(255, 230, 150, 0.4),
+    30vw -40vh 1.5px rgba(255, 230, 150, 0.2),
+    50vw -10vh 0.5px rgba(255, 250, 200, 0.5),
+    70vw -60vh 1px rgba(255, 220, 100, 0.3),
+    90vw -80vh 1.5px rgba(255, 240, 180, 0.4),
+    20vw -70vh 0.8px rgba(255, 230, 150, 0.2),
+    80vw -30vh 1.2px rgba(255, 240, 180, 0.5);
+  animation: dust-vertical-drift 40s linear infinite;
+}
+
+.desert-dust::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  border-radius: 50%;
+  box-shadow:
+    40vw -50vh 1px rgba(255, 230, 150, 0.3),
+    15vw -85vh 1.5px rgba(255, 230, 150, 0.2),
+    65vw -25vh 0.5px rgba(255, 250, 200, 0.4),
+    95vw -15vh 1px rgba(255, 220, 100, 0.3),
+    5vw -90vh 1.5px rgba(255, 240, 180, 0.4);
+  animation: dust-vertical-drift 30s linear infinite reverse;
+}
+
+@keyframes dust-vertical-drift {
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(-120vh);
+  }
+}
+
+/* 🖥️ Modern Tech & Commerce Button System */
+.pharaonic-button {
+  position: relative;
+  background: linear-gradient(135deg, rgba(6, 20, 50, 0.85) 0%, rgba(8, 30, 65, 0.9) 100%);
+  border: 1.5px solid rgba(56, 189, 248, 0.5);
+  box-shadow:
+    0 0 18px rgba(56, 189, 248, 0.18),
+    inset 0 0 12px rgba(56, 189, 248, 0.06),
+    0 4px 24px rgba(0, 0, 0, 0.4);
+  color: #e0f2fe;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+}
+
+/* Animated shimmer line on top */
+.pharaonic-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.8), transparent);
+  animation: btn-shimmer 3s linear infinite;
+}
+
+/* Subtle glow dot at bottom right */
+.pharaonic-button::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 40px;
+  height: 40px;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+@keyframes btn-shimmer {
+  0% { left: -100%; }
+  100% { left: 200%; }
+}
+
+.pharaonic-button:hover {
+  background: linear-gradient(135deg, rgba(12, 40, 90, 0.95) 0%, rgba(6, 55, 100, 0.98) 100%);
+  border-color: rgba(56, 189, 248, 0.85);
+  box-shadow:
+    0 0 30px rgba(56, 189, 248, 0.35),
+    inset 0 0 20px rgba(56, 189, 248, 0.12),
+    0 8px 32px rgba(0, 0, 0, 0.5);
+  transform: scale(1.02) translateY(-2px);
+  color: #fff;
+}
+
+.pharaonic-button:hover::before {
+  animation-duration: 1s;
+}
+
+.pharaonic-panel {
+  background: rgba(4, 12, 30, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(56, 189, 248, 0.05);
+  position: relative;
+}
+
+.pharaonic-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.6), transparent);
+}
+
+.pharaonic-text-glow {
+  text-shadow: 0 0 10px var(--primary, #facc15), 0 0 20px var(--primary, #b38b24), 0 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.hieroglyph-pattern {
+  background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 5v2m0 26v2M5 20h2m26 0h2m-6.3-10.7l-1.4 1.4m-12.6 12.6l-1.4 1.4m12.6 0l1.4 1.4m-12.6-12.6l1.4-1.4' stroke='%2338bdf8' stroke-width='0.5' fill='none' opacity='0.08'/%3E%3C/svg%3E");
+}
+
+/* 🏺 Ancient Texture Overlay */
+.layout-container {
+  overflow: hidden;
+  background-color: #030712;
+}
+
+.layout-container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("https://www.transparenttextures.com/patterns/natural-paper.png");
+  opacity: 0.05;
+  pointer-events: none;
+  z-index: 10;
+  mix-blend-mode: overlay;
+}
+
+.customize-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.customize-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+}
+
+.customize-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(34, 211, 238, 0.3);
+  border-radius: 10px;
+  border: 1px solid rgba(34, 211, 238, 0.1);
+}
+
+.customize-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 211, 238, 0.5);
+}
+
+/* 📱 Auto-Scaling & Truncation for Subject Titles on Mobile */
+@media (max-width: 480px) {
+  .layout-container h3, 
+  .layout-container h4,
+  .layout-container .truncate,
+  .glass h3,
+  .glass h4 {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    font-size: clamp(11px, 3.5vw, 16px) !important;
+    line-height: 1.5 !important;
+  }
+}
+/* 🎯 Global Fix for Mentora Logo to fill circular containers perfectly */
+img[alt="Mentora Logo"], img[alt="Mentora"] {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  transform: scale(1.1) !important; /* Slight scale to hide any edge gaps/borders */
+  border-radius: 50% !important;
+}
+
