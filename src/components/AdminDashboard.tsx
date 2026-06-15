@@ -78,7 +78,17 @@ const StudentCard: React.FC<{
   const [showPackageActions, setShowPackageActions] = useState(false);
   const [passwordValue, setPasswordValue] = useState(student.password);
   const [isCopied, setIsCopied] = useState(false);
+  const [showSubAdminAlert, setShowSubAdminAlert] = useState(false);
   const isOnline = DB.getOnlineStatus(student.id);
+
+  const handleRestrictedAction = (action: () => void) => {
+    if (isSubAdmin) {
+      setShowSubAdminAlert(true);
+      setTimeout(() => setShowSubAdminAlert(false), 3000);
+    } else {
+      action();
+    }
+  };
 
   const handleCopyID = (id: string) => {
     navigator.clipboard.writeText(id);
@@ -321,30 +331,29 @@ const StudentCard: React.FC<{
         "w-full lg:w-60 shrink-0 flex flex-col gap-2 lg:border-r lg:border-white/5 lg:pr-8",
         isSubAdmin ? "relative" : ""
       )}>
-        {/* Sub-admin lock overlay */}
-        {isSubAdmin && (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-2 rounded-[2rem] bg-black/30 backdrop-blur-[2px] border border-white/5 pointer-events-none">
-            <Lock size={22} className="text-gray-500 opacity-60" />
-            <span className="text-[9px] font-black text-gray-500 uppercase tracking-widest opacity-60">غير مصرح</span>
+        {showSubAdminAlert && (
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] z-20 flex items-center justify-center pointer-events-none">
+            <div className="bg-red-500/95 text-white text-[11px] leading-relaxed font-black px-4 py-3 rounded-2xl text-center shadow-[0_0_20px_rgba(239,68,68,0.4)] backdrop-blur-md animate-in fade-in zoom-in slide-in-from-bottom-2 duration-300 border border-red-400/30">
+              غير مصرح لك!
+              <br />
+              <span className="text-[9px] opacity-90 mt-1 block">هذه الأزرار تحت استخدام الأدمن الأساسي فقط.</span>
+            </div>
           </div>
         )}
 
         <button
-          onClick={() => handleDeleteStudent(student.id, student.username)}
-          disabled={isSubAdmin}
-          className={cn("text-[11px] font-black transition-colors text-center w-full mb-1", isSubAdmin ? "text-red-500/20 cursor-not-allowed" : "text-red-500/60 hover:text-red-500")}
+          onClick={() => handleRestrictedAction(() => handleDeleteStudent(student.id, student.username))}
+          className="text-[11px] font-black transition-colors text-center w-full mb-1 text-red-500/60 hover:text-red-500"
         >حذف</button>
 
         <button
-          onClick={() => handleBlockStudent(student)}
-          disabled={isSubAdmin}
+          onClick={() => handleRestrictedAction(() => handleBlockStudent(student))}
           className={cn(
             "w-full py-3.5 rounded-2xl flex items-center justify-center gap-3 font-black text-xs transition-all shadow-xl",
-            isSubAdmin ? "bg-yellow-500/5 text-yellow-500/20 cursor-not-allowed" :
-              student.isBlocked ? "bg-yellow-500 text-black translate-y-[-2px] shadow-yellow-500/20" : "bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20"
+            student.isBlocked ? "bg-yellow-500 text-black translate-y-[-2px] shadow-yellow-500/20" : "bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20"
           )}
         >
-          <span>{student.isBlocked ? 'إغاء حظر' : 'حظر طاب'}</span>
+          <span>{student.isBlocked ? 'إلغاء حظر' : 'حظر طالب'}</span>
         </button>
 
         <button
@@ -381,11 +390,8 @@ const StudentCard: React.FC<{
         </button>
 
         <button
-          onClick={() => handleManagePointsAccess(student)}
-          disabled={isSubAdmin}
-          className={cn("w-full py-3.5 rounded-2xl border flex items-center justify-center gap-3 font-black text-xs transition-all text-center",
-            isSubAdmin ? "bg-yellow-900/5 text-yellow-600/20 border-yellow-600/10 cursor-not-allowed" : "bg-yellow-900/20 text-yellow-600 border-yellow-600/20 hover:bg-yellow-900/30"
-          )}
+          onClick={() => handleRestrictedAction(() => handleManagePointsAccess(student))}
+          className="w-full py-3.5 rounded-2xl border flex items-center justify-center gap-3 font-black text-xs transition-all text-center bg-yellow-900/20 text-yellow-600 border-yellow-600/20 hover:bg-yellow-900/30"
         >
           <span>المحتوى المفتوح بالنقاط</span>
         </button>
@@ -1317,76 +1323,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 {/* System Status & Quick Stats */}
                 <div className="space-y-6">
 
-                  {/* Sub-admin: Frameless Curved Area Chart */}
-                  {subAdminConfig && (() => {
-                    const count = isolatedStudents.filter(s => !s.isDeleted).length;
-                    // Generate smooth data points based on student count
-                    const seed = count || 1;
-                    const pts = [
-                      Math.max(1, seed * 0.3),
-                      Math.max(1, seed * 0.5),
-                      Math.max(1, seed * 0.4),
-                      Math.max(1, seed * 0.7),
-                      Math.max(1, seed * 0.6),
-                      Math.max(1, seed * 0.85),
-                      Math.max(1, seed * 0.75),
-                      Math.max(1, seed * 0.9),
-                      Math.max(1, seed * 0.95),
-                      Math.max(1, seed * 1.0),
-                    ];
-                    const W = 400, H = 120;
-                    const maxV = Math.max(...pts);
-                    const coords = pts.map((v, i) => ({
-                      x: (i / (pts.length - 1)) * W,
-                      y: H - (v / maxV) * (H - 16) - 8
-                    }));
-                    // Build smooth cubic bezier path
-                    let d = `M ${coords[0].x},${coords[0].y}`;
-                    for (let i = 0; i < coords.length - 1; i++) {
-                      const cx = (coords[i].x + coords[i + 1].x) / 2;
-                      d += ` C ${cx},${coords[i].y} ${cx},${coords[i + 1].y} ${coords[i + 1].x},${coords[i + 1].y}`;
-                    }
-                    const fillPath = d + ` L ${W},${H} L 0,${H} Z`;
-                    return (
-                      <div className="relative px-2 py-4">
-                        {/* Labels */}
-                        <div className="flex items-center justify-between mb-3 px-1">
-                          <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: theme.primary }} />
-                            <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">نشاط الطلاب</span>
-                          </div>
-                          <span className="text-lg font-black" style={{ color: theme.primary }}>{count}</span>
-                        </div>
-                        {/* Frameless SVG chart */}
-                        <svg viewBox={`0 0 ${W} ${H}`} className="w-full" style={{ height: 100, overflow: 'visible' }}>
-                          <defs>
-                            <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                              <stop offset="0%" stopColor={theme.primary} stopOpacity="0.35" />
-                              <stop offset="100%" stopColor={theme.primary} stopOpacity="0.0" />
-                            </linearGradient>
-                            <filter id="glow">
-                              <feGaussianBlur stdDeviation="3" result="blur" />
-                              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-                            </filter>
-                          </defs>
-                          {/* Area fill */}
-                          <path d={fillPath} fill="url(#chartGrad)" />
-                          {/* Line */}
-                          <path d={d} fill="none" stroke={theme.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" filter="url(#glow)" />
-                          {/* Dots on peaks */}
-                          {coords.map((c, i) => (
-                            <circle key={i} cx={c.x} cy={c.y} r={i === coords.length - 1 ? 4 : 2.5} fill={theme.primary} opacity={i === coords.length - 1 ? 1 : 0.5} />
-                          ))}
-                        </svg>
-                        {/* X labels */}
-                        <div className="flex justify-between mt-1 px-1">
-                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'].map(l => (
-                            <span key={l} className="text-[8px] text-gray-600 font-bold">{l}</span>
-                          ))}
-                        </div>
-                      </div>
-                    );
-                  })()}
+                  
 
                   {/* Security Banner  main admin only */}
                   {!subAdminConfig && (
@@ -1484,7 +1421,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         {subAdminConfig.specialization}
                       </span>
                     )}
-                    <input type="text" placeholder="بحث بااس& أ ID..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs font-bold flex-1 min-w-[160px] outline-none focus:border-primary/50" />
+                    <input type="text" placeholder="بحث بالاسم أو ID..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs font-bold flex-1 min-w-[160px] outline-none focus:border-primary/50" />
                   </div>
                 ) : (
                   /* Main admin: full filter dropdowns */
@@ -1495,7 +1432,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       className={cn("border rounded-xl px-2 py-2 text-xs font-bold outline-none transition-all flex-1 min-w-[100px]", yearFilter !== 'all' ? "text-white" : "bg-white/5 text-gray-400 border-white/10")}
                       style={yearFilter !== 'all' ? { backgroundColor: `${theme.primary}30`, borderColor: theme.primary } : {}}
                     >
-                      <option className="bg-[#0b141a] text-white" value="all">ْ افر</option>
+                      <option className="bg-[#0b141a] text-white" value="all">الفرقة</option>
                       <option className="bg-[#0b141a] text-white" value="الفرقة الأولى">الفرقة الأولى</option>
                       <option className="bg-[#0b141a] text-white" value="الفرقة الثانية">الفرقة الثانية</option>
                       <option className="bg-[#0b141a] text-white" value="الفرقة الثالثة">الفرقة الثالثة</option>
@@ -1507,9 +1444,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       className={cn("border rounded-xl px-2 py-2 text-xs font-bold outline-none transition-all flex-1 min-w-[100px]", levelFilter !== 'all' ? "text-white" : "bg-white/5 text-gray-400 border-white/10")}
                       style={levelFilter !== 'all' ? { backgroundColor: `${theme.primary}30`, borderColor: theme.primary } : {}}
                     >
-                      <option className="bg-[#0b141a] text-white" value="all">ْ اشعب</option>
+                      <option className="bg-[#0b141a] text-white" value="all">الشعبة</option>
                       <option className="bg-[#0b141a] text-white" value="اعمال دولية IB">اعمال دولية IB</option>
-                      <option className="bg-[#0b141a] text-white" value=" ظ& ا&ع&اتم BIS"> ظ& ا&ع&اتم BIS</option>
+                      <option className="bg-[#0b141a] text-white" value="نظم المعلومات BIS">نظم المعلومات BIS</option>
                     </select>
                     <select
                       value={specFilter}
@@ -1517,10 +1454,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       className={cn("border rounded-xl px-2 py-2 text-xs font-bold outline-none transition-all flex-1 min-w-[100px]", specFilter !== 'all' ? "text-white" : "bg-white/5 text-gray-400 border-white/10")}
                       style={specFilter !== 'all' ? { backgroundColor: `${theme.primary}30`, borderColor: theme.primary } : {}}
                     >
-                      <option className="bg-[#0b141a] text-white" value="all">ْ اتم خصصاتم </option>
+                      <option className="bg-[#0b141a] text-white" value="all">التخصص</option>
                       <option className="bg-[#0b141a] text-white" value="محاسبة">محاسبة</option>
-                      <option className="bg-[#0b141a] text-white" value="تم ✓">تم ✓</option>
-                      <option className="bg-[#0b141a] text-white" value=" ظ& ا&ع&اتم "> ظ& ا&ع&اتم </option>
+                      <option className="bg-[#0b141a] text-white" value="تمويل">تمويل</option>
+                      <option className="bg-[#0b141a] text-white" value="نظم المعلومات">نظم المعلومات</option>
                     </select>
                     <select
                       value={semesterFilter}
@@ -1528,11 +1465,11 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       className={cn("border rounded-xl px-2 py-2 text-xs font-bold outline-none transition-all flex-1 min-w-[100px]", semesterFilter !== 'all' ? "text-white" : "bg-white/5 text-gray-400 border-white/10")}
                       style={semesterFilter !== 'all' ? { backgroundColor: `${theme.primary}30`, borderColor: theme.primary } : {}}
                     >
-                      <option className="bg-[#0b141a] text-white" value="all">ْ افص</option>
+                      <option className="bg-[#0b141a] text-white" value="all">الفصل</option>
                       <option className="bg-[#0b141a] text-white" value="الفصل الدراسي الأول">الفصل الدراسي الأول</option>
                       <option className="bg-[#0b141a] text-white" value="الفصل الدراسي الثاني">الفصل الدراسي الثاني</option>
                     </select>
-                    <input type="text" placeholder="بحث بااس& أ ID..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs font-bold flex-1 md:w-48 outline-none focus:border-primary/50" />
+                    <input type="text" placeholder="بحث بالاسم أو ID..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-xs font-bold flex-1 md:w-48 outline-none focus:border-primary/50" />
                   </div>
                 )}
                 <h2 className="text-2xl font-black">إدارة الطلاب</h2>
@@ -1549,8 +1486,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     className="w-full py-4 mt-2 bg-white/5 border border-white/5 rounded-2xl font-black text-gray-400 hover:bg-white/10 hover:text-white transition-all flex items-center justify-center gap-2"
                   >
                     <Plus size={16} />
-                    عرض ا&زيد &  اطاب
-                    <span className="text-[10px] opacity-50">({filteredStudents.length - visibleStudents} &تم ب`)</span>
+                    عرض المزيد من الطلاب
+                    <span className="text-[10px] opacity-50">({filteredStudents.length - visibleStudents} متبقي)</span>
                   </button>
                 )}
               </div>
@@ -1560,7 +1497,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
           {activeTab === 'polls_manage' && (
             <div className="space-y-6 text-right">
               <div className="flex items-center justify-between">
-                <p className="text-[10px] text-gray-500 font-bold">إدالمرورة ا اشاتم ااستم طاعاتم اعا&ة</p>
+                <p className="text-[10px] text-gray-500 font-bold">إدارة ساحة النقاش العامة</p>
                 <h2 className="text-2xl font-black text-white">ساحة النقاش</h2>
               </div>
 
@@ -1569,8 +1506,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 blur-[50px] -z-10" style={{ backgroundColor: `${theme.primary}10` }} />
                 <div className="flex items-center justify-end gap-3 mb-2">
                   <div className="text-right">
-                    <h3 className="text-sm font-black text-white">إضافة & شر جديد</h3>
-                    <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest">Create New Discussion Post</p>
+                    <h3 className="text-sm font-black text-white">إضافة منشور جديد</h3>
+                    <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest">إنشاء منشور نقاش جديد</p>
                   </div>
                   <div className="p-2 rounded-xl bg-primary/10 text-primary border border-primary/20" style={{ color: theme.primary, borderColor: `${theme.primary}20` }}>
                     <Plus size={18} />
@@ -1588,13 +1525,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <button
                     onClick={handleDeleteAllSurveyPosts}
                     className="p-3 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white rounded-2xl transition-all border border-red-500/20 active:scale-95 group shadow-lg"
-                    title="حذف جميع المنشوراتم "
+                    title="حذف جميع المنشورات"
                   >
                     <Trash2 size={20} className="group-hover:rotate-12 transition-transform" />
                   </button>
                   <button
                     onClick={() => {
-                      if (!newSurveyTitle.trim()) return alert('`رجى ْتم ابة  ص ا& شر');
+                      if (!newSurveyTitle.trim()) return alert('يرجى كتابة نص المنشور');
                       const post: SurveyPost = {
                         id: Date.now().toString(),
                         studentId: 'admin',
@@ -1602,7 +1539,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         content: newSurveyTitle.trim(),
                         date: new Date().toLocaleDateString('ar-EG'),
                         time: new Date().toLocaleTimeString('ar-EG'),
-                        level: 'عا&',
+                        level: 'عام',
                         year: 'جميع المراحل',
                         avatarUrl: 'https://api.dicebear.com/7.x/bottts/svg?seed=admin',
                         reactions: { like: 0, love: 0, insightful: 0 },
@@ -1613,12 +1550,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       DB.addSurveyPost(post);
                       setSurveyPosts(DB.getSurveyPosts());
                       setNewSurveyTitle('');
-                      alert('تم &  شر ا& شر في ساحة النقاش');
+                      alert('تم نشر المنشور في ساحة النقاش');
                     }}
                     className="flex-1 py-3 rounded-2xl font-black text-black text-sm shadow-xl active:scale-95 transition-all"
                     style={{ backgroundColor: theme.primary }}
                   >
-                     شر اآ  xa
+                    نشر الآن
                   </button>
                 </div>
               </div>
@@ -1627,13 +1564,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 {(surveyPosts || []).length === 0 ? (
                   <div className="p-20 flex flex-col items-center justify-center opacity-30 text-center grayscale">
                     <ListOrdered size={64} className="mb-4" />
-                    <p className="text-xl font-bold">ا تم جد استم طاعاتم في اتم احا`</p>
+                    <p className="text-xl font-bold">لا توجد منشورات في ساحة النقاش حالياً</p>
                   </div>
                 ) : (
                   (surveyPosts || []).map(post => (
                     <div key={post.id} className="p-5 bg-white/[0.03] border border-white/5 rounded-[2rem] text-right group hover:bg-white/10 transition-all relative overflow-hidden">
                       {post.studentId === 'admin' && (
-                        <div className="absolute top-0 right-0 px-4 py-1.5 bg-primary/20 text-primary text-[8px] font-black rounded-bl-2xl border-b border-l border-primary/20" style={{ color: theme.primary }}>& شر إدالمرور`</div>
+                        <div className="absolute top-0 right-0 px-4 py-1.5 bg-primary/20 text-primary text-[8px] font-black rounded-bl-2xl border-b border-l border-primary/20" style={{ color: theme.primary }}>منشور الإدارة</div>
                       )}
                       <div className="flex justify-between items-center mb-4">
                         <div className="flex items-center gap-2">
@@ -1646,7 +1583,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               }}
                               className="px-4 py-2 bg-emerald-500/10 text-emerald-500 rounded-xl hover:bg-emerald-500 hover:text-white transition-all active:scale-95 border border-emerald-500/10 font-bold text-xs flex items-center gap-2"
                             >
-                              <MessageSquare size={14} /> ارد عى اطاب
+                              <MessageSquare size={14} /> الرد على الطالب
                             </button>
                           )}
                         </div>
@@ -1688,7 +1625,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2 text-emerald-500 border-r-4 border-emerald-500 pr-3">
                       <MessageSquare size={18} />
-                      <h2 className="text-xl font-black">ارد عى اطاب</h2>
+                      <h2 className="text-xl font-black">الرد على الطالب</h2>
                     </div>
                     <button onClick={() => setReplyingPostId(null)} className="p-2 bg-white/5 rounded-full hover:bg-red-500/20 hover:text-red-500 transition-colors">
                       <X size={20} />
@@ -1703,7 +1640,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
                     className="w-full bg-black/60 border border-white/10 rounded-2xl py-4 px-5 text-white outline-none focus:border-emerald-500/50 transition-all h-40 resize-none font-black text-sm placeholder:text-gray-600 no-scrollbar shadow-inner"
-                    placeholder="الكلتم ب ردْ ! ا بشْ احتم راف`..."
+                    placeholder="اكتب ردك بشكل احترافي..."
                   />
 
                   <div className="flex gap-3">
@@ -1711,13 +1648,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       onClick={handleSendSurveyReply}
                       className="flex-1 py-4 bg-emerald-500 text-black rounded-2xl font-black text-sm shadow-xl active:scale-95 transition-all flex items-center justify-center gap-2"
                     >
-                      <Send size={18} /> إرسا ارد اآ 
+                      <Send size={18} /> إرسال الرد الآن
                     </button>
                     <button
                       onClick={() => setReplyingPostId(null)}
                       className="px-6 py-4 bg-white/5 text-gray-400 rounded-2xl font-black text-sm hover:bg-white/10 transition-all"
                     >
-                      إغاء
+                      إلغاء
                     </button>
                   </div>
                 </div>
@@ -2142,27 +2079,27 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     <Save size={18} /> حفظ التغييرات 
                   </button>
                   <div className="text-right">
-                    <h2 className="text-3xl font-black text-white"> صص ا& صة اعا&ة</h2>
-                    <p className="text-gray-500 text-xs font-bold mt-1">تعديل ْافة اعبالمروراتم ا&صطحاتم في ا&ع</p>
+                    <h2 className="text-3xl font-black text-white"> تخصيص نصوص الموقع</h2>
+                    <p className="text-gray-500 text-xs font-bold mt-1">تعديل كافة العبارات والمصطلحات في الموقع</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                   {/* Section 1: Branding & Hero */}
                   <div className="space-y-4">
-                    <h3 className="text-sm font-black text-primary border-r-2 border-primary pr-3 mr-1" style={{ color: theme.primary, borderColor: theme.primary }}>اهشيئة العناوين </h3>
+                    <h3 className="text-sm font-black text-primary border-r-2 border-primary pr-3 mr-1" style={{ color: theme.primary, borderColor: theme.primary }}>تهيئة العناوين </h3>
                     {[
-                      { key: 'teacherName', label: 'اس& ا&ع&/اأد& ' },
-                      { key: 'teacherTitle1', label: 'اصف اأ' },
-                      { key: 'teacherTitle2', label: 'اصف اثا `' },
-                      { key: 'teacherExperience', label: 'س اتم اخبرة' },
-                      { key: 'welcomeTitle', label: 'ع ا  اتم رحيب (ب ادخ)' },
-                      { key: 'welcomeSubtitle', label: 'صف اتم رحيب (ب ادخ)' },
-                      { key: 'homeTitle', label: 'ع ا  اتم رحيب (داخ ا& صة)' },
-                      { key: 'homeSubtitle', label: 'صف اتم رحيب (داخ ا& صة)' },
-                      { key: 'headerGreetingAr', label: 'تم حية اأعى (عرب`)' },
-                      { key: 'headerGreetingEn', label: 'تم حية اأعى (إ جيز`)' },
-                      { key: 'marqueeText', label: ' ص اشريط ا&تم حرْ' },
+                      { key: 'teacherName', label: 'اسم المعلم/المادة' },
+                      { key: 'teacherTitle1', label: 'الوصف الأول' },
+                      { key: 'teacherTitle2', label: 'الوصف الثاني' },
+                      { key: 'teacherExperience', label: 'سنوات الخبرة' },
+                      { key: 'welcomeTitle', label: 'عنوان الترحيب (قبل الدخول)' },
+                      { key: 'welcomeSubtitle', label: 'وصف الترحيب (قبل الدخول)' },
+                      { key: 'homeTitle', label: 'عنوان الترحيب (داخل المنصة)' },
+                      { key: 'homeSubtitle', label: 'وصف الترحيب (داخل المنصة)' },
+                      { key: 'headerGreetingAr', label: 'التحية الأعلى (عربي)' },
+                      { key: 'headerGreetingEn', label: 'التحية الأعلى (إنجليزي)' },
+                      { key: 'marqueeText', label: ' نص الشريط المتحرك' },
                     ].map(f => (
                       <div key={f.key} className="bg-white/[0.02] border border-white/5 p-4 rounded-2xl space-y-2">
                         <label className="text-[10px] font-black text-gray-400 uppercase">{f.label}</label>
@@ -2173,14 +2110,14 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                   {/* Section 2: Payments & Status */}
                   <div className="space-y-4">
-                    <h3 className="text-sm font-black text-emerald-500 border-r-2 border-emerald-500 pr-3 mr-1">المدفوعاتااشتم رالكلاتم </h3>
+                    <h3 className="text-sm font-black text-emerald-500 border-r-2 border-emerald-500 pr-3 mr-1">المدفوعات والاشتراكات </h3>
                     {[
                       { key: 'buyNowButton', label: 'زر الشراء' },
                       { key: 'pendingReviewButton', label: 'زر قيد المراجعة' },
-                      { key: 'unlockedButton', label: 'زر &تم اح/تم & اشراء' },
-                      { key: 'paymentSuccessTitle', label: 'ع ا  ا جاح' },
-                      { key: 'paymentPendingTitle', label: 'ع ا  اقيد المراجعة' },
-                      { key: 'paymentSuccessMessage', label: 'رساة إتم &ا& ادفع' },
+                      { key: 'unlockedButton', label: 'زر تم الفتح/تم الشراء' },
+                      { key: 'paymentSuccessTitle', label: 'عنوان النجاح' },
+                      { key: 'paymentPendingTitle', label: 'عنوان قيد المراجعة' },
+                      { key: 'paymentSuccessMessage', label: 'رسالة إتمام الدفع' },
                     ].map(f => (
                       <div key={f.key} className="bg-white/[0.02] border border-white/5 p-4 rounded-2xl space-y-2">
                         <label className="text-[10px] font-black text-gray-400 uppercase">{f.label}</label>
@@ -2191,13 +2128,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                   {/* Section 3: Sections Titles */}
                   <div className="space-y-4">
-                    <h3 className="text-sm font-black text-blue-500 border-r-2 border-blue-500 pr-3 mr-1">ع اي  اأسا&</h3>
+                    <h3 className="text-sm font-black text-blue-500 border-r-2 border-blue-500 pr-3 mr-1">عناوين الأقسام</h3>
                     {[
-                      { key: 'unitsSectionTitle', label: 'ع ا  س& احداتم ' },
-                      { key: 'examsSectionTitle', label: 'ع ا  س& اا&تم حا اتم ' },
-                      { key: 'bookletsSectionTitle', label: 'ع ا  س& ا&خصاتم ' },
-                      { key: 'coursesSectionTitle', label: 'ع ا  س& الكلرساتم ' },
-                      { key: 'lessonsSectionTitle', label: 'ع ا  س& اشرح' },
+                      { key: 'unitsSectionTitle', label: 'عنوان قسم الوحدات' },
+                      { key: 'examsSectionTitle', label: 'عنوان قسم الامتحانات' },
+                      { key: 'bookletsSectionTitle', label: 'عنوان قسم الملخصات' },
+                      { key: 'coursesSectionTitle', label: 'عنوان قسم الكورسات' },
+                      { key: 'lessonsSectionTitle', label: 'عنوان قسم الشرح' },
                     ].map(f => (
                       <div key={f.key} className="bg-white/[0.02] border border-white/5 p-4 rounded-2xl space-y-2">
                         <label className="text-[10px] font-black text-gray-400 uppercase">{f.label}</label>
@@ -2208,9 +2145,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                   {/* Section 4: Chat & Support */}
                   <div className="space-y-4">
-                    <h3 className="text-sm font-black text-purple-500 border-r-2 border-purple-500 pr-3 mr-1">ادع& اخصصية</h3>
+                    <h3 className="text-sm font-black text-purple-500 border-r-2 border-purple-500 pr-3 mr-1">الدعم والخصوصية</h3>
                     {[
-                      { key: 'supportSectionTitle', label: 'ع ا  ادع&' },
+                      { key: 'supportSectionTitle', label: 'عنوان الدعم' },
                       { key: 'supportSendButton', label: 'زر إرسال الدعم' },
                     ].map(f => (
                       <div key={f.key} className="bg-white/[0.02] border border-white/5 p-4 rounded-2xl space-y-2">
@@ -2222,13 +2159,13 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
                   {/* Section 5: Messages & Prompts */}
                   <div className="space-y-4">
-                    <h3 className="text-sm font-black text-orange-500 border-r-2 border-orange-500 pr-3 mr-1">رسائ اتم ب`!</h3>
+                    <h3 className="text-sm font-black text-orange-500 border-r-2 border-orange-500 pr-3 mr-1">رسائل التنبيهات</h3>
                     {[
-                      { key: 'premiumLockMessage', label: 'رساة ا&حتم 0 ا&ف' },
+                      { key: 'premiumLockMessage', label: 'رسالة المحتوى المقفل' },
                       { key: 'platformLockedMessage', label: 'رسالة المنصة المقفلة' },
                       { key: 'coinsInsufficientMessage', label: 'رصيد غير كافٍ' },
-                      { key: 'unlockWithCoinsButtonText', label: 'زر فتم ح بالكلي ز' },
-                      { key: 'confirmDeleteTitle', label: 'تم أْيد احذف' },
+                      { key: 'unlockWithCoinsButtonText', label: 'زر فتح بالكوينز' },
+                      { key: 'confirmDeleteTitle', label: 'تأكيد الحذف' },
                     ].map(f => (
                       <div key={f.key} className="bg-white/[0.02] border border-white/5 p-4 rounded-2xl space-y-2">
                         <label className="text-[10px] font-black text-gray-400 uppercase">{f.label}</label>
@@ -2241,9 +2178,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <div className="space-y-4">
                     <h3 className="text-sm font-black text-red-500 border-r-2 border-red-500 pr-3 mr-1">تخصيص التسجيل</h3>
                     {[
-                      { key: 'loginModalTitle', label: 'ع ا  دخ اطاب' },
+                      { key: 'loginModalTitle', label: 'عنوان دخول الطالب' },
                       { key: 'loginModalSubtitle', label: 'وصف شاشة الدخول' },
-                      { key: 'registerModalTitle', label: 'ع ا  إ شاء احساب' },
+                      { key: 'registerModalTitle', label: 'عنوان إنشاء الحساب' },
                       { key: 'registerModalSubtitle', label: 'وصف شاشة الحساب' },
                       { key: 'loginButtonLabel', label: 'نص زر الدخول' },
                       { key: 'registerButtonLabel', label: 'نص زر التسجيل' },
@@ -2254,10 +2191,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       { key: 'yearLabel', label: 'تسمية حقل السنة' },
                       { key: 'semesterLabel', label: 'تسمية حقل الفصل الدراسي' },
                       { key: 'locationLabel', label: 'تسمية حقل المحافظة' },
-                      { key: 'noAccountText', label: ' ص اتم حي تم سج`' },
-                      { key: 'alreadyHaveAccountText', label: ' ص اتم حي دخ' },
-                      { key: 'captchaSliderText', label: ' ص سحب الكلابتم شا' },
-                      { key: 'captchaVerifiedText', label: ' ص  جاح الكلابتم شا' },
+                      { key: 'noAccountText', label: ' نص التوجيه للتسجيل' },
+                      { key: 'alreadyHaveAccountText', label: ' نص التوجيه للدخول' },
+                      { key: 'captchaSliderText', label: ' نص سحب الكابتشا' },
+                      { key: 'captchaVerifiedText', label: ' نص نجاح الكابتشا' },
                     ].map(f => (
                       <div key={f.key} className="bg-white/[0.02] border border-white/5 p-4 rounded-2xl space-y-2">
                         <label className="text-[10px] font-black text-gray-400 uppercase">{f.label}</label>
@@ -2272,9 +2209,9 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     {[
                       { key: 'platformMaintenanceTitle', label: 'عنوان صفحة الصيانة' },
                       { key: 'adminLoginButton', label: 'زر دخول الإدارة' },
-                      { key: 'preparingPlatformText', label: ' ص جالمروري اتم حضير' },
+                      { key: 'preparingPlatformText', label: 'نص جاري التحضير' },
                       { key: 'loadingSystemText', label: 'نص شاشة التحميل' },
-                      { key: 'syncingText', label: ' ص جالمروري ا&زا& ة' },
+                      { key: 'syncingText', label: 'نص جاري المزامنة' },
                       { key: 'blessingText', label: 'نص الصلاة على النبي' },
                     ].map(f => (
                       <div key={f.key} className="bg-white/[0.02] border border-white/5 p-4 rounded-2xl space-y-2">
@@ -2296,7 +2233,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                   <div className="flex items-center gap-3 text-white">
                     <ShieldCheck size={28} style={{ color: theme.primary }} />
                     <div>
-                      <h2 className="text-3xl font-black">إدالمرورة حالات التحكم افرعية</h2>
+                      <h2 className="text-3xl font-black">إدارة لوحات التحكم الفرعية</h2>
                       <p className="text-gray-500 text-xs font-bold mt-1">تغيير أسماء المستخدمين وكلمات المرور للمشرفين الفرعيين</p>
                     </div>
                   </div>

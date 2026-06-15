@@ -88,12 +88,35 @@ export const PaymentManagement: React.FC<Props> = ({ paymentList, setPaymentList
                 if (pkg) {
                     const expiry = new Date();
                     expiry.setMonth(expiry.getMonth() + (pkg.durationMonths || 1));
+                    
+                    // Add coin bonus based on package title
+                    let coinBonus = 0;
+                    if (pkg.title.includes('شهرية') || pkg.title === 'الباقة الشهرية') {
+                        coinBonus = 2000;
+                    } else if (pkg.title.includes('3 شهور')) {
+                        coinBonus = 5000;
+                    }
+
                     DB.updateStudent(student.id, {
                         goldenMembershipActive: true,
                         goldenMembershipExpiry: expiry.toISOString().split('T')[0],
                         goldenMembershipPackageId: pkg.id,
                         goldenMembershipPendingPackageId: undefined,
+                        coins: (student.coins || 0) + coinBonus
                     });
+
+                    // Send notification to the student about the coins bonus
+                    if (coinBonus > 0) {
+                        DB.addNotification({
+                            id: 'coin_bonus_' + Date.now(),
+                            title: 'هدية الاشتراك الذهبي 🎁',
+                            message: `تم إضافة ${coinBonus} كوينز لرصيدك كهدية لاشتراكك في ${pkg.title}! استمتع بفتح العناصر المدفوعة.`,
+                            date: new Date().toLocaleDateString('ar-EG'),
+                            target: 'student',
+                            studentId: student.id
+                        });
+                    }
+
                     window.dispatchEvent(new CustomEvent('nt-students-change'));
                 }
             }

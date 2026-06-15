@@ -17,7 +17,7 @@ import {
   History, Book, Landmark, Archive, Play, Volume2, Ticket,
   FileText, FileUp, Bookmark, Headset, LogIn, UserPlus, Mail, Phone, MapPin,
   Clock, ShieldCheck, CheckCircle, AlertCircle, ShieldAlert, Check, HelpCircle,
-  MessageSquare, Bell, ShoppingCart, MessageCircle, Trophy, CheckCircle2, Video, Database, RefreshCw, Download, XCircle, Bot, Share2, Trash, Trash2, ExternalLink, Maximize, Minimize, AlertTriangle, Settings, Fingerprint, Key, Smartphone, Zap, Monitor, Layout, LayoutDashboard, Code, Camera, Plus, ShoppingBag, Users, CircleDollarSign as Coins, Moon, Sun, Copy, Receipt, Loader2, Star, Ban, Crown, Medal
+  MessageSquare, Bell, ShoppingCart, MessageCircle, Trophy, CheckCircle2, Video, Database, RefreshCw, Download, XCircle, Bot, Share2, Trash, Trash2, ExternalLink, Maximize, Minimize, AlertTriangle, Settings, Fingerprint, Key, Smartphone, Zap, Monitor, Layout, LayoutDashboard, Code, Camera, Plus, ShoppingBag, Users, CircleDollarSign as Coins, Moon, Sun, Copy, Receipt, Loader2, Star, Ban, Crown, Medal, PhoneCall
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 // SurveySection removed
@@ -32,40 +32,24 @@ import ModernBottomNav from './components/ModernBottomNav';
 import { Home } from 'lucide-react';
 
 // ─── Heavy components — lazy loaded (only parse JS when actually used) ─────────────
-const AdminDashboard = lazy(() => import('./components/AdminDashboard'));
-const ParentDashboard = lazy(() => import('./components/ParentDashboard'));
-const NotificationAdminDashboard = lazy(() =>
-  import('./components/NotificationAdminDashboard').then(m => ({ default: m.NotificationAdminDashboard }))
-);
-const UnitsSection = lazy(() =>
-  import('./components/UnitsSection').then(m => ({ default: m.UnitsSection }))
-);
-const SectionsSection = lazy(() =>
-  import('./components/SectionsSection').then(m => ({ default: m.SectionsSection }))
-);
-const StudentReportSection = lazy(() =>
-  import('./components/StudentReportSection').then(m => ({ default: m.StudentReportSection }))
-);
-const PlatformRatingModal = lazy(() =>
-  import('./components/PlatformRatingModal').then(m => ({ default: m.PlatformRatingModal }))
-);
-const StudentProfileModal = lazy(() => import('./components/StudentProfileModal'));
-const ControlDashboard = lazy(() => import('./components/student/ControlDashboard'));
-const ReferralsPage = lazy(() =>
-  import('./components/referrals/ReferralsPage').then(m => ({ default: m.ReferralsPage }))
-);
-const Leaderboard = lazy(() =>
-  import('./components/referrals/Leaderboard').then(m => ({ default: m.Leaderboard }))
-);
-const GoldenMembership = lazy(() =>
-  import('./components/GoldenMembership').then(m => ({ default: m.GoldenMembership }))
-);
-const TantaPortalView = lazy(() =>
-  import('./components/TantaPortalView').then(m => ({ default: m.TantaPortalView }))
-);
+import AdminDashboard from './components/AdminDashboard';
+import ParentDashboard from './components/ParentDashboard';
+import { NotificationAdminDashboard } from './components/NotificationAdminDashboard';
+import { UnitsSection } from './components/UnitsSection';
+import { SectionsSection } from './components/SectionsSection';
+import { StudentReportSection } from './components/StudentReportSection';
+import { PlatformRatingModal } from './components/PlatformRatingModal';
+import StudentProfileModal from './components/StudentProfileModal';
+import ControlDashboard from './components/student/ControlDashboard';
+import { ReferralsPage } from './components/referrals/ReferralsPage';
+import { Leaderboard } from './components/referrals/Leaderboard';
+import { GoldenMembership } from './components/GoldenMembership';
+import { TantaPortalView } from './components/TantaPortalView';
 // ───────────────────────────────────────────────────────────────────────────────
 
 import { DB, StorageLayer, normalizeStage } from './services/db';
+import IntroVideo from './components/IntroVideo';
+import StudentAffairsView from './components/StudentAffairsView';
 import { Content, Exam, Student, SupportTicket, ExamResult, Certificate, Booklet, Course, PaymentOrder, Lesson } from './types';
 import { supabase, isSupabaseConnected } from './services/supabaseClient';
 import { usePDFExport } from './utils/pdfExport';
@@ -482,6 +466,13 @@ function App() {
       return 'welcome';
     } catch { return 'welcome'; }
   });
+
+  const [showIntro, setShowIntro] = useState(() => {
+    try {
+      const seen = StorageLayer.getItem('nt_intro_seen');
+      return !seen;
+    } catch { return false; }
+  });
   const [theme, setTheme] = useState(() => {
     try {
       const saved = StorageLayer.getItem('nt_theme');
@@ -600,6 +591,27 @@ function App() {
       setOffline();
     };
   }, [user?.id]);
+
+  // Retroactive bonus for existing Golden Membership subscribers
+  useEffect(() => {
+    if (user && user.goldenMembershipActive && !localStorage.getItem(`retro_bonus_${user.id}`)) {
+       let bonus = 0;
+       if (user.goldenMembershipPackageId === 'ads_monthly') bonus = 2000;
+       else if (user.goldenMembershipPackageId === 'ads_3months') bonus = 5000;
+       else bonus = 2000; // Fallback for old monthly packages
+       
+       if (bonus > 0) {
+           DB.updateStudent(user.id, { coins: (user.coins || 0) + bonus });
+           localStorage.setItem(`retro_bonus_${user.id}`, 'true');
+           window.dispatchEvent(new CustomEvent('nt-students-change'));
+           
+           setTimeout(() => {
+             alert(`هدية بأثر رجعي 🎁: تم إضافة ${bonus} كوينز لحسابك تقديراً لاشتراكك الحالي في العضوية الذهبية!`);
+             window.location.reload();
+           }, 1000);
+       }
+    }
+  }, [user]);
 
 
 
@@ -3792,6 +3804,15 @@ function App() {
 
   return (
     <div className="min-h-[100dvh] font-sans text-white selection:bg-white/10 overflow-hidden" style={{ '--primary': theme.primary } as any}>
+      {showIntro && (
+        <IntroVideo 
+          onComplete={() => {
+            StorageLayer.setItem('nt_intro_seen', 'true');
+            setShowIntro(false);
+          }} 
+        />
+      )}
+
       <AnimatedGlobeBackground color={theme.primary} />
 
       {screen === 'admin' && (
@@ -3886,7 +3907,7 @@ function App() {
 
       {screen === 'welcome' && (
         <div
-          className={cn("fixed inset-0 z-10 flex flex-col items-center justify-center p-6 text-center layout-container ", !isBgAnimated && "static-bg")}
+          className={cn("!fixed inset-0 z-[100] bg-[#020617] flex flex-col items-center justify-center p-6 text-center layout-container ", !isBgAnimated && "static-bg")}
         >
           <div className="absolute inset-0 bg-black/20 -z-10" />
 
@@ -4946,6 +4967,7 @@ function App() {
                       { id: 'courses', icon: <GraduationCap size={20} strokeWidth={2} />, label: 'الكورسات', notify: hasNewCourses, isLocked: !appSettings.isCoursesEnabled },
                       { id: 'explanations', icon: <Video size={20} strokeWidth={2} />, label: 'الشرح', notify: hasNewLessons, isLocked: !appSettings.isLessonsEnabled },
                       { id: 'tanta_portal', icon: <Globe size={20} strokeWidth={2} />, label: 'منصة المعهد' },
+                      { id: 'student_affairs', icon: <PhoneCall size={20} strokeWidth={2} />, label: 'شئون الطلبه' },
                       { id: 'meeting', icon: <Camera size={20} strokeWidth={2} />, label: 'البث المباشر', notify: !!(meetingConfig.isActive && !StorageLayer.getItem(`nt_meeting_seen_${user?.id}_${meetingConfig.isActive}`)) },
                       { id: 'developer', icon: <Code size={20} strokeWidth={2} />, label: 'المطور' },
                       { id: 'support', icon: <Headset size={20} strokeWidth={2} />, label: 'الدعم الفني' },
@@ -5224,9 +5246,10 @@ function App() {
                                                                       activeModal === 'leaderboard' ? 'المتصدرين' :
                                                                         activeModal === 'tanta_portal' ? 'منصة المعهد' :
                                                                           activeModal === 'developer' ? 'المطور' :
-                                                                            activeModal === 'control' ? 'تحليل AI' :
-                                                                              activeModal === 'student_report' ? 'تقرير الطالب' :
-                                                                                'عرض المحتويات'}</h3>
+                                                                              activeModal === 'control' ? 'تحليل AI' :
+                                                                                activeModal === 'student_report' ? 'تقرير الطالب' :
+                                                                                  activeModal === 'student_affairs' ? 'شئون الطلبة' :
+                                                                                    'عرض المحتويات'}</h3>
                         </div>
                       )}
 
@@ -5784,6 +5807,7 @@ function App() {
                           </div>
                         )}
                         {activeModal === 'tanta_portal' && <TantaPortalView theme={theme} />}
+                        {activeModal === 'student_affairs' && <StudentAffairsView theme={theme} />}
 
                         {activeModal === 'referrals' && <ReferralsPage user={user} theme={theme} />}
                         {activeModal === 'leaderboard' && <Leaderboard user={user} theme={theme} />}
@@ -6580,7 +6604,7 @@ function App() {
                                       )}
                                       <div className="flex items-center text-[7.5px] sm:text-[8px] border-b border-gray-200/60 pb-[1px] w-full min-w-0">
                                         <span className="font-black text-[#1a2e4c] whitespace-nowrap w-[55px] sm:w-[60px] text-right shrink-0">ID الطالب :</span>
-                                        <span className="font-bold font-mono text-[#354960] text-right truncate flex-1 leading-tight py-[1px]" dir="ltr">{user.id.replace(/^MN-?/i, 'Mentora-')}</span>
+                                        <span className="font-bold font-mono text-[#354960] text-right truncate flex-1 leading-tight py-[1px] text-[6.5px] sm:text-[7px] tracking-tighter" dir="ltr">{user.id.replace(/^MN-?/i, 'Mentora-')}</span>
                                       </div>
                                       {user.universityEmail && (
                                         <div className="flex items-center pt-[1px] w-full min-w-0">

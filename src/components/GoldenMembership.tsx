@@ -28,7 +28,7 @@ export const GoldenMembership = ({
                 price: 49,
                 coinPrice: 2000,
                 durationMonths: 1,
-                features: ['إزالة جميع الإعلانات', 'ظهور شارة العضوية الذهبية بجوار اسم الطالب', 'أولوية ظهور التعليقات والمشاركات', 'تجربة استخدام أفضل بدون إزعاج']
+                features: ['إزالة جميع الإعلانات', 'ظهور شارة العضوية الذهبية بجوار اسم الطالب', 'أولوية ظهور التعليقات والمشاركات', 'تجربة استخدام أفضل بدون إزعاج', 'الحصول على 2000 كوينز لفتح العناصر في المنصة']
             }];
             patched = true;
         }
@@ -41,7 +41,7 @@ export const GoldenMembership = ({
                 price: 119,
                 coinPrice: 3700,
                 durationMonths: 3,
-                features: ['إزالة جميع الإعلانات', 'ظهور شارة العضوية الذهبية بجوار اسم الطالب', 'أولوية ظهور التعليقات والمشاركات', 'تجربة استخدام أفضل بدون إزعاج', 'أولوية الدعم الفني']
+                features: ['إزالة جميع الإعلانات', 'ظهور شارة العضوية الذهبية بجوار اسم الطالب', 'أولوية ظهور التعليقات والمشاركات', 'تجربة استخدام أفضل بدون إزعاج', 'أولوية الدعم الفني', 'الحصول على 5000 كوينز لفتح العناصر في المنصة']
             });
             patched = true;
         }
@@ -56,9 +56,17 @@ export const GoldenMembership = ({
                 patched = true;
                 updatedP.coinPrice = 2000;
             }
+            if ((updatedP.title.includes('شهرية') || updatedP.title === 'الباقة الشهرية') && !updatedP.features.includes('الحصول على 2000 كوينز لفتح العناصر في المنصة')) {
+                patched = true;
+                updatedP.features = [...updatedP.features, 'الحصول على 2000 كوينز لفتح العناصر في المنصة'];
+            }
             if (updatedP.title.includes('3 شهور') && !('coinPrice' in updatedP)) {
                 patched = true;
                 updatedP.coinPrice = 3700;
+            }
+            if (updatedP.title.includes('3 شهور') && !updatedP.features.includes('الحصول على 5000 كوينز لفتح العناصر في المنصة')) {
+                patched = true;
+                updatedP.features = [...updatedP.features, 'الحصول على 5000 كوينز لفتح العناصر في المنصة'];
             }
             return updatedP;
         });

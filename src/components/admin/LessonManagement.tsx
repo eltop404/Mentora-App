@@ -65,17 +65,13 @@ export const LessonManagement: React.FC<Props> = ({ isDarkMode, theme, lessonLis
     });
 
     const [isEditing, setIsEditing] = useState(false);
-    const [isUploadingThumb, setIsUploadingThumb] = useState(false);
-
-    const [videoForm, setVideoForm] = useState<Partial<VideoItem>>({
+        const [videoForm, setVideoForm] = useState<Partial<VideoItem>>({
         title: '',
         url: '',
         file: '',
         description: ''
     });
-    const [isUploadingVideo, setIsUploadingVideo] = useState(false);
-
-    const stages = ['اعمال دوليه IB', 'نظم المعلومات BIS'];
+        const stages = ['اعمال دوليه IB', 'نظم المعلومات BIS'];
     const years = ['الفرقة الأولى', 'الفرقة الثانية', 'الفرقة الثالثة', 'الفرقة الرابعة'];
     
     
@@ -105,31 +101,8 @@ export const LessonManagement: React.FC<Props> = ({ isDarkMode, theme, lessonLis
         DB.updateSettings({ isLessonsEnabled: newVal });
     };
 
-    const handleThumbUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        setIsUploadingThumb(true);
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            setForm(prev => ({ ...prev, thumbnail: event.target?.result as string }));
-            setIsUploadingThumb(false);
-        };
-        reader.readAsDataURL(file);
-    };
-
-    const handleVideoFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        setIsUploadingVideo(true);
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            const base64 = event.target?.result as string;
-            setVideoForm(prev => ({ ...prev, file: `${file.name}|||${base64}` }));
-            setIsUploadingVideo(false);
-        };
-        reader.readAsDataURL(file);
-    };
-
+    
+    
     const addVideoToLesson = () => {
         if (!videoForm.title) return alert('يرجى كتابة عنوان الفيديو');
         if (!videoForm.url && !videoForm.file) return alert('يرجى إضافة رابط أو ملف للفيديو');
@@ -466,22 +439,15 @@ export const LessonManagement: React.FC<Props> = ({ isDarkMode, theme, lessonLis
                             <label className="text-xs font-bold text-gray-500 mr-2">صورة الغلاف (Thumbnail)</label>
                             <div className="flex flex-col gap-3">
                                 <div className="flex gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => (document.querySelector('input[type="file"][accept="image/*"]') as HTMLInputElement)?.click()}
-                                        className="flex-1 py-3 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/20 rounded-2xl font-black text-xs transition-all flex items-center justify-center gap-2"
-                                    >
-                                        <ImageIcon size={14} />
-                                        رفع صورة
-                                    </button>
+                                    
                                     <input
                                         type="text"
                                         value={form.thumbnail}
                                         onChange={(e) => setForm({ ...form, thumbnail: e.target.value })}
                                         placeholder="أو أدخل رابط صورة..."
-                                        className="flex-[2] bg-black/40 border border-white/10 rounded-2xl py-3 px-6 text-right outline-none focus:border-cyan-500/50 transition-all font-bold text-xs"
+                                        className="w-full bg-black/40 border border-white/10 rounded-2xl py-3 px-6 text-right outline-none focus:border-cyan-500/50 transition-all font-bold text-xs"
                                     />
-                                    <input type="file" accept="image/*" className="hidden" onChange={handleThumbUpload} />
+                                    
                                 </div>
                                 {form.thumbnail && (
                                     <div className="relative group w-full h-32 rounded-2xl overflow-hidden border border-white/10 bg-black/20">
@@ -521,11 +487,7 @@ export const LessonManagement: React.FC<Props> = ({ isDarkMode, theme, lessonLis
                                         onChange={e => setVideoForm({ ...videoForm, url: e.target.value })}
                                         className="w-full bg-black/40 border border-white/10 rounded-xl py-2 px-4 text-right text-[10px] outline-none focus:border-cyan-500/50 font-bold"
                                     />
-                                    <label className="flex items-center justify-between bg-black/40 border border-white/10 rounded-xl py-2 px-4 cursor-pointer">
-                                        <FileUp size={14} className="text-gray-500" />
-                                        <span className="text-[10px] text-gray-400 font-bold truncate">{videoForm.file ? videoForm.file.split('|||')[0] : 'أو ارفع ملف'}</span>
-                                        <input type="file" accept="video/*" className="hidden" onChange={handleVideoFileUpload} />
-                                    </label>
+                                    
                                 </div>
                                 <textarea
                                     placeholder="وصف الفيديو (اختياري)"
@@ -616,7 +578,7 @@ export const LessonManagement: React.FC<Props> = ({ isDarkMode, theme, lessonLis
                         <div className="pt-4 flex gap-3">
                             <button
                                 onClick={handleSave}
-                                disabled={isUploadingThumb || isUploadingVideo}
+                                disabled={false}
                                 className="flex-1 py-4 rounded-2xl font-black text-black transition-all hover:scale-[1.02] active:scale-95 shadow-xl flex items-center justify-center gap-2 disabled:opacity-50"
                                 style={{ backgroundColor: theme.primary }}
                             >

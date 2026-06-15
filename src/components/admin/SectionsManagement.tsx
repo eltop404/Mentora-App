@@ -302,26 +302,7 @@ export const SectionsManagement: React.FC<Props> = ({ isDarkMode, theme, section
         setDraggedIdx(null);
     };
 
-    const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = Array.from(e.target.files || []) as File[];
-        if (files.length === 0) return;
 
-        setIsUploading(true);
-        const newFiles: string[] = [...form.files];
-
-        files.forEach(file => {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const base64 = event.target?.result as string;
-                newFiles.push(`${file.name}|||${base64}`);
-                if (newFiles.length === form.files.length + files.length) {
-                    setForm(prev => ({ ...prev, files: newFiles }));
-                    setIsUploading(false);
-                }
-            };
-            reader.readAsDataURL(file);
-        });
-    };
 
     const handleAddQuestion = () => {
         const type = form.type;
@@ -628,14 +609,7 @@ export const SectionsManagement: React.FC<Props> = ({ isDarkMode, theme, section
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="space-y-1 text-right">
-                                <label className="text-xs font-bold text-gray-500 mr-2">المرفقات (PDF)</label>
-                                <label className="flex items-center justify-between w-full bg-black/40 border border-white/10 rounded-2xl py-3 px-6 cursor-pointer hover:border-cyan-500/30 transition-all group/up">
-                                    <FileUp size={18} className="text-gray-500 group-hover/up:text-cyan-400 transition-colors" />
-                                    <span className="text-gray-400 text-sm">ارفع ملف PDF</span>
-                                    <input type="file" multiple accept=".pdf" className="hidden" onChange={handleFileUpload} />
-                                </label>
-                            </div>
+
                             <div className="space-y-1 text-right">
                                 <label className="text-xs font-bold text-gray-500 mr-2">رابط ملف PDF خارجي (اختياري)</label>
                                 <input
@@ -906,24 +880,7 @@ export const SectionsManagement: React.FC<Props> = ({ isDarkMode, theme, section
                             </div>
                         </div>
 
-                        {form.files.length > 0 && (
-                            <div className="space-y-2 pt-2">
-                                <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest text-right">الملفات المرفوعة :</p>
-                                <div className="flex flex-wrap gap-2 justify-end">
-                                    {form.files.map((fileEntry, i) => {
-                                        const name = fileEntry.split('|||')[0];
-                                        return (
-                                            <div key={i} className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2">
-                                                <button onClick={() => setForm(prev => ({ ...prev, files: prev.files.filter((_, idx) => idx !== i) }))}>
-                                                    <X size={12} />
-                                                </button>
-                                                <span className="truncate max-w-[150px]">{name}</span>
-                                            </div>
-                                        )
-                                    })}
-                                </div>
-                            </div>
-                        )}
+
 
                         <div className="pt-4 flex gap-3">
                             {isEditing && (

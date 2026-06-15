@@ -94,7 +94,10 @@ body {
 
 .layout-container,
 .main-container {
+  min-height: 100vh;
   min-height: 100dvh;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 @supports (-webkit-touch-callout: none) {
@@ -129,7 +132,10 @@ img {
 
   .layout-container,
   .main-container {
-    min-height: 100dvh;
+    min-height: 100vh;
+  min-height: 100dvh;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
   }
 
   .layout-bottom-nav,
@@ -388,9 +394,8 @@ select {
 
 /* 🚀 Performance Optimization Engine */
 .cv-section {
-  content-visibility: auto;
-  contain-intrinsic-size: 1px 500px;
-  contain: content;
+  /* Removed content-visibility: auto; because it causes heavy lag and jumping when scrolling up in long lists */
+  transform: translateZ(0);
 }
 
 /* Avoid Layout Thrashing */
@@ -447,7 +452,10 @@ img {
   width: 100%;
   /* Use dynamic viewport height so the container adapts when
      the browser address bar appears / disappears on mobile */
+  min-height: 100vh;
   min-height: 100dvh;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
   display: flex;
   flex-direction: column;
   overflow-y: auto;

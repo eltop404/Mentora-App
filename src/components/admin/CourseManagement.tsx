@@ -92,9 +92,7 @@ export const CourseManagement: React.FC<Props> = ({ isDarkMode, theme, courseLis
     const [allExams, setAllExams] = useState(() => DB.getExams());
 
     const [isEditing, setIsEditing] = useState(false);
-    const [isUploading, setIsUploading] = useState(false);
-
-    // ── Video Preview Modal State (pure client-side, zero DB) ──
+        // ── Video Preview Modal State (pure client-side, zero DB) ──
     const [previewVideo, setPreviewVideo] = useState<{ url: string; idx: number } | null>(null);
     const [trimStart, setTrimStart] = useState(0);
     const [trimEnd, setTrimEnd] = useState(0);
@@ -507,39 +505,16 @@ export const CourseManagement: React.FC<Props> = ({ isDarkMode, theme, courseLis
                             <label className="text-xs font-bold text-gray-500 mr-2">صورة الكورس (Thumbnail)</label>
                             <div className="flex flex-col gap-3">
                                 <div className="flex gap-2">
-                                    <button
-                                        type="button"
-                                        onClick={() => document.getElementById('course-thumbnail-upload')?.click()}
-                                        className="flex-1 py-3 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/20 rounded-2xl font-black text-xs transition-all flex items-center justify-center gap-2"
-                                    >
-                                        <Upload size={14} />
-                                        رفع صورة
-                                    </button>
+                                    
                                     <input
                                         type="text"
                                         value={form.thumbnail}
                                         onChange={(e) => setForm({ ...form, thumbnail: e.target.value })}
                                         placeholder="أو أدخل رابط صورة..."
-                                        className="flex-[2] bg-black/40 border border-white/10 rounded-2xl py-3 px-6 text-right outline-none focus:border-cyan-500/50 transition-all font-bold text-xs"
+                                        className="w-full bg-black/40 border border-white/10 rounded-2xl py-3 px-6 text-right outline-none focus:border-cyan-500/50 transition-all font-bold text-xs"
                                     />
                                 </div>
-                                <input
-                                    id="course-thumbnail-upload"
-                                    type="file"
-                                    accept="image/*"
-                                    className="hidden"
-                                    onChange={(e) => {
-                                        const file = e.target.files?.[0];
-                                        if (file) {
-                                            const reader = new FileReader();
-                                            reader.onload = (prev) => {
-                                                const b64 = prev.target?.result as string;
-                                                setForm({ ...form, thumbnail: b64 });
-                                            };
-                                            reader.readAsDataURL(file);
-                                        }
-                                    }}
-                                />
+                                
                                 {form.thumbnail && (
                                     <div className="relative group w-full h-32 rounded-2xl overflow-hidden border border-white/10 bg-black/20">
                                         <img src={form.thumbnail} alt="Preview" className="w-full h-full object-cover" />
@@ -825,14 +800,7 @@ export const CourseManagement: React.FC<Props> = ({ isDarkMode, theme, courseLis
                         </div>
 
                         <div className="space-y-4">
-                            <div className="space-y-1 text-right">
-                                <label className="text-xs font-bold text-gray-500 mr-2">رفع ملف فيديو مباشر</label>
-                                <label className="flex items-center justify-between w-full bg-black/40 border border-white/10 rounded-2xl py-4 px-6 cursor-pointer hover:border-cyan-500/30 transition-all group/up">
-                                    <FileUp size={20} className="text-gray-500 group-hover/up:text-cyan-400 transition-colors" />
-                                    <span className="text-gray-400 text-sm font-bold truncate max-w-[150px]">{form.videoFile ? form.videoFile.split('|||')[0] : 'اختر فيديو'}</span>
-                                    <input type="file" accept="video/*" className="hidden" onChange={handleVideoUpload} />
-                                </label>
-                            </div>
+                            
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="flex items-center justify-between bg-black/20 p-4 rounded-2xl border border-white/5">
@@ -904,11 +872,11 @@ export const CourseManagement: React.FC<Props> = ({ isDarkMode, theme, courseLis
                         )}
                         <button
                             onClick={handleSave}
-                            disabled={isUploading}
+                            
                             className="flex-[2] py-4 rounded-2xl font-black text-black transition-all hover:scale-[1.02] active:scale-95 shadow-xl flex items-center justify-center gap-2 disabled:opacity-50"
                             style={{ backgroundColor: theme.primary }}
                         >
-                            {isUploading ? 'جاري الرفع...' : isEditing ? 'تحديث الكورس' : 'حفظ ونشر الكورس'}
+                            {isEditing ? 'تحديث الكورس' : 'حفظ ونشر الكورس'}
                             <Save size={18} />
                         </button>
                     </div>
